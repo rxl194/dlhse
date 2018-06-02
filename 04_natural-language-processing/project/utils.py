@@ -12,7 +12,7 @@ RESOURCE_PATH = {
     'TAG_CLASSIFIER': 'tag_classifier.pkl',
     'TFIDF_VECTORIZER': 'tfidf_vectorizer.pkl',
     'THREAD_EMBEDDINGS_FOLDER': 'thread_embeddings_by_tags',
-    'WORD_EMBEDDINGS': 'word_embeddings.tsv',
+    'WORD_EMBEDDINGS': 'data/word_embeddings.tsv',
 }
 
 
@@ -27,8 +27,11 @@ def text_prepare(text):
     text = replace_by_space_re.sub(' ', text)
     text = bad_symbols_re.sub('', text)
     text = ' '.join([x for x in text.split() if x and x not in stopwords_set])
+    text = [x.strip() for x in text.split() if x and x not in stopwords_set]
+    intent = ' '.join(text)
+#    print (text)
 
-    return text.strip()
+    return intent.strip(), text
 
 
 def load_embeddings(embeddings_path):
@@ -50,6 +53,7 @@ def load_embeddings(embeddings_path):
     #### YOUR CODE HERE ####
     ########################
     #        pass 
+    import pdb; pdb.set_trace()
     embeddings = {}
     for line in open(embeddings_path):
         data = line.strip().split('\t')
@@ -70,11 +74,14 @@ def question_to_vec(question, embeddings, dim):
     qvec = np.zeros(dim)
     question_words = question.split(' ')
     count = 0
+    print (question)
+    print (question_words)
     for word in question_words:
         if word in embeddings:
             qvec += embeddings[word]
             count += 1
 
+    print (qvec)
     return qvec
 
 
