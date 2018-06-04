@@ -12,11 +12,10 @@ RESOURCE_PATH = {
     'TAG_CLASSIFIER': 'tag_classifier.pkl',
     'TFIDF_VECTORIZER': 'tfidf_vectorizer.pkl',
     'THREAD_EMBEDDINGS_FOLDER': 'thread_embeddings_by_tags',
-    'WORD_EMBEDDINGS': 'data/word_embeddings.tsv',
+    'WORD_EMBEDDINGS': 'data/GoogleNews-vectors-negative300.bin',
 }
 
-
-def text_prepare(text):
+def text_prepare_list(text):
     """Performs tokenization and simple preprocessing."""
     
     replace_by_space_re = re.compile('[/(){}\[\]\|@,;]')
@@ -33,6 +32,22 @@ def text_prepare(text):
 
     return intent.strip(), text
 
+def text_prepare(text):
+    """Performs tokenization and simple preprocessing."""
+    
+    replace_by_space_re = re.compile('[/(){}\[\]\|@,;]')
+    bad_symbols_re = re.compile('[^0-9a-z #+_]')
+    stopwords_set = set(stopwords.words('english'))
+
+    text = text.lower()
+    text = replace_by_space_re.sub(' ', text)
+    text = bad_symbols_re.sub('', text)
+    text = ' '.join([x for x in text.split() if x and x not in stopwords_set])
+
+    return text.strip()
+
+import gensim
+from gensim.models import KeyedVectors
 
 def load_embeddings(embeddings_path):
     """Loads pre-trained word embeddings from tsv file.
@@ -53,13 +68,14 @@ def load_embeddings(embeddings_path):
     #### YOUR CODE HERE ####
     ########################
     #        pass 
-    import pdb; pdb.set_trace()
-    embeddings = {}
-    for line in open(embeddings_path):
-        data = line.strip().split('\t')
-        embeddings[data[0]] = np.array(data[1:], dtype=np.float32)
-    embeddings_len = len(list(embeddings.values())[0])
-    return embeddings, embeddings_len    
+#    embeddings = {}
+#    for line in open(embeddings_path):
+#        data = line.strip().split('\t')
+#        embeddings[data[0]] = np.array(data[1:], dtype=np.float32)
+#    embeddings_len = len(list(embeddings.values())[0])
+    embeddings = KeyedVectors.load_word2vec_format(embeddings_path, binary=True) 
+    len(embeddings.index2word) 
+    return embeddings, embeddings.vector_size    
 
 
 
@@ -74,14 +90,10 @@ def question_to_vec(question, embeddings, dim):
     qvec = np.zeros(dim)
     question_words = question.split(' ')
     count = 0
-    print (question)
-    print (question_words)
     for word in question_words:
         if word in embeddings:
             qvec += embeddings[word]
             count += 1
-
-    print (qvec)
     return qvec
 
 
