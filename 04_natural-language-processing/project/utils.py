@@ -25,9 +25,8 @@ def text_prepare_list(text):
     text = text.lower()
     text = replace_by_space_re.sub(' ', text)
     text = bad_symbols_re.sub('', text)
-    text = ' '.join([x for x in text.split() if x and x not in stopwords_set])
+    intent = ' '.join([x for x in text.split() if x and x not in stopwords_set])
     text = [x.strip() for x in text.split() if x and x not in stopwords_set]
-    intent = ' '.join(text)
 #    print (text)
 
     return intent.strip(), text
@@ -87,14 +86,19 @@ def question_to_vec(question, embeddings, dim):
     ########################
     #### YOUR CODE HERE ####
     ########################
-    qvec = np.zeros(dim)
-    question_words = question.split(' ')
-    count = 0
-    for word in question_words:
-        if word in embeddings:
-            qvec += embeddings[word]
-            count += 1
-    return qvec
+#    qvec = np.zeros(dim)
+#    question_words = question.split(' ')
+##    count = 0
+#    for word in question_words:
+#        if word in embeddings:
+##            qvec += embeddings[word]
+#            count += 1
+#    return qvec
+    words_embedding = [embeddings[word] for word in question.split() if word in embeddings]
+    if not words_embedding:
+        return np.zeros(dim)
+    words_embedding = np.array(words_embedding)
+    return words_embedding.mean(axis=0)
 
 
 def unpickle_file(filename):

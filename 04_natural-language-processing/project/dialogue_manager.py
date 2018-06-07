@@ -24,11 +24,17 @@ class ThreadRanker(object):
         # HINT: you have already implemented a similar routine in the 3rd assignment.
         
         #### YOUR CODE HERE ####
+        #import pdb; pdb.set_trace()
         question_vec = question_to_vec(question, self.word_embeddings, self.embeddings_dim)
-        print (question_vec)
-        best_thread = pairwise_distances_argmin([question_vec], thread_embeddings) 
+        #print (question_vec)
+        #print (question)
+        best_thread = pairwise_distances_argmin(question_vec.reshape(1,-1), thread_embeddings) 
         
-        return thread_ids[best_thread]
+        import pdb; pdb.set_trace()
+        best_thread = best_thread[0]
+        if best_thread >= len(thread_ids):
+            best_thread = 0
+        return thread_ids[best_thread[0]]
 
 
 class DialogueManager(object):
@@ -71,8 +77,7 @@ class DialogueManager(object):
         # Don't forget to prepare question and calculate features for the question.
         
         #### YOUR CODE HERE ####
-        import pdb; pdb.set_trace()
-        ques_intent, ques_text = text_prepare(question)
+        ques_intent, ques_text = text_prepare_list(question)
         features = self.tfidf_vectorizer.transform(ques_text)
         intent = self.intent_recognizer.predict(features)
 
