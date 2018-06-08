@@ -30,11 +30,9 @@ class ThreadRanker(object):
         #print (question)
         best_thread = pairwise_distances_argmin(question_vec.reshape(1,-1), thread_embeddings) 
         
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         best_thread = best_thread[0]
-        if best_thread >= len(thread_ids):
-            best_thread = 0
-        return thread_ids[best_thread[0]]
+        return thread_ids.iloc[best_thread]
 
 
 class DialogueManager(object):
@@ -81,6 +79,13 @@ class DialogueManager(object):
         features = self.tfidf_vectorizer.transform(ques_text)
         intent = self.intent_recognizer.predict(features)
 
+        if isinstance(intent, list):
+            intent = intent[0]
+        elif type(intent) is np.ndarray:
+            intent = intent[0]
+
+        print (type(intent))
+        print (intent)
         # Chit-chat part:   
         if intent == 'dialogue':
             # Pass question to chitchat_bot to generate a response.       
